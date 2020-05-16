@@ -69,5 +69,25 @@ namespace Spice.Areas.Customer.Controllers
 
             return View(orderList);
         }
-    }
+
+
+        public async Task<IActionResult> GetOrderDetails(int Id)
+        {
+            //creating an object and assigning the orderheader and orderdetails
+            OrderDetailsViewModel orderDetailsViewModel = new OrderDetailsViewModel
+            {
+                //populating the order header
+                OrderHeader = await _db.OrderHeader.FirstOrDefaultAsync(m => m.Id == Id),
+                //populating the order details 
+                OrderDetails = await _db.OrderDetails.Where(m => m.OrderId == Id).ToListAsync(),
+            };
+
+            //assign from the database, populate the application user
+            orderDetailsViewModel.OrderHeader.ApplicationUser = await _db.ApplicationUser.FirstOrDefaultAsync(u => u.Id == orderDetailsViewModel.OrderHeader.UserId);
+
+            //return a partial view, with the model
+            return PartialView("_IndividualOrderDetails", orderDetailsViewModel);
+        }
+
+        }
 }
